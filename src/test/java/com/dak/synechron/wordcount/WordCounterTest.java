@@ -5,13 +5,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class WordCounterTest {
 
@@ -24,15 +25,17 @@ public class WordCounterTest {
 
     @Before
     public void setup() {
+        translator = new Translator() {
+            @Override
+            public String translate(String word) {
+                return word;
+            }
+        };
         wordCounter = new WordCounter(translator);
     }
 
     @Test
     public void testInvalidInput() {
-        // Given
-        when(translator.translate(stringCaptor.capture())).thenReturn(stringCaptor.getValue());
-
-        // Then
         assertFalse(wordCounter.addWord(null));
         assertFalse(wordCounter.addWord(""));
         assertFalse(wordCounter.addWord("12345"));
@@ -46,7 +49,6 @@ public class WordCounterTest {
         // Given
         final String goodWord = "foo";
         final String secondWord = "bar";
-        when(translator.translate(stringCaptor.capture())).thenReturn(stringCaptor.getValue());
 
         // Then
         assertEquals(0, getCounterSize());
@@ -74,7 +76,6 @@ public class WordCounterTest {
     @Test
     public void testAddValidWordIgnoresCase() {
         // Given
-        when(translator.translate(stringCaptor.capture())).thenReturn(stringCaptor.getValue());
         final String lowercase = "foobar";
         final String uppercase = "FOOBAR";
         final String mixedCase = "fOoBAr";
@@ -103,6 +104,9 @@ public class WordCounterTest {
     @Test
     public void testAddValidWordTranslatesToCommonKey() {
         // Given
+        translator = mock(Translator.class);
+        wordCounter = new WordCounter(translator);
+
         final String english = "flower";
         final String spanish = "flor";
         final String german = "blume";

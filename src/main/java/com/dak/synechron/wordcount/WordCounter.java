@@ -18,7 +18,7 @@ public class WordCounter {
     }
 
     public boolean addWord(String word) {
-        if (isValidWord(word)) {
+        if (!isValidWord(word)) {
             return false;
         }
         String keyWord = translator.translate(word);
